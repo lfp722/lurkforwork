@@ -31,15 +31,10 @@ LoginForm.addEventListener("submit", function(event) {
         console.log(BACKEND_PORT);
         if (!response.ok) {
             console.log("Error here");
-            //throw new Error(`Error: ${response.status}`);
             window.alert("Wrong Credential");
         }
     })
     .then(data => {
-        //token = data["token"];
-        //user_id = data["userId"];
-        //login_email = "";
-        //login_password = "";
         console.log(data);
         user_logged_in = true;
         LoginForm.style.display = 'none';
@@ -80,10 +75,8 @@ RegisterForm.addEventListener ("submit", function(event) {
     })
         .then(res => {
             if (res.ok) {
-                // console.log("res is ok I guess");
                 return res.json();
             } else {
-                // console.log("res is not ok i guess")
                 throw new Error(`Error: ${res.status}`);
             }
         })
@@ -91,7 +84,6 @@ RegisterForm.addEventListener ("submit", function(event) {
             console.log(data);
         })
         .catch(err => {
-            //display_error_popup("Invalid Input");
             console.log("Error: ", err);
         });
 })
