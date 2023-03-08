@@ -6,19 +6,40 @@
     <title>LurkForWork</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- You can add your styles and scripts here -->
-    <link rel="stylesheet" type="text/css" media="screen" href="styles/provided.css" />
+    <link rel="stylesheet" type="text/css" href="styles/global.css" />
 </head>
 <body>
-    <!-- This is an example app structure, you can modify this as much as you choose --> 
+    <!-- This is an example app structure, you can modify this as much as you choose -->
     <header>
-        <h1>lurkforwork.com</h1>
-        <nav>
-            <li class="nav-item">Item</li>
-            <li class="nav-item">Item</li>
-        </nav>
+        <h1 class="head">lurkforwork.com</h1>
     </header>
     <main role="main">
-        <!-- app goes here --> 
+        <!-- app goes here -->
+        <form id="LoginForm">
+            <h2>Are you a member?</h2>
+            <label for="userID">ID:</label>
+            <input type="text" id="userID">
+            <label for="userPD">Password:</label>
+            <input type="text" id="userPD">
+            <button id="loginB">Login!</button>
+        </form>
+        <form id="RegisterForm">
+            <h2>If you are not a member, don't worry!</h2>
+            <h3>Register here!</h3>
+            <label for="registerID">ID:</label>
+            <input type="text" id="registerID">
+
+            <label for="registerN">User Name:</label>
+            <input type="text" id="registerN">
+
+            <label for="registerPD">Password:</label>
+            <input type="text" id="registerPD">
+
+            <label for="registerPC">Confirm Password:</label>
+            <input type="text" id="registerPC">
+
+            <button id="registerB">Register!</button>
+        </form>
     </main>
     <footer>
         <p>&copy; lurkforwork.com 2022</p>
