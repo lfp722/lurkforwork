@@ -1,7 +1,69 @@
 /* base styles, feel free to edit */
 html, body {
+    background-color: rgb(153, 185, 245);
     margin: 0;
     padding: 0;
     height: 100%;
     font-family: Arial;
+}
+.head{
+    font-size: 50px;
+    margin-left: 5vw;
+}
+
+
+/* Login */
+#LoginForm {
+    display: block;
+    margin-top: 5vh;
+    margin-left: 5vw;
+}
+#LoginForm label {
+    display: block;
+    margin-bottom: 10px;
+}
+#LoginForm input[type="text"] {
+    display: block;
+    margin-bottom: 20px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+#LoginForm button {
+    display: block;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Register */
+#RegisterForm {
+    display: block;
+    margin-top: 5vh;
+    margin-left: 5vw;
+}
+#RegisterForm label {
+    display: block;
+    margin-bottom: 10px;
+}
+#RegisterForm input[type="text"] {
+    display: block;
+    margin-bottom: 20px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+#RegisterForm button {
+    display: block;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
 }
