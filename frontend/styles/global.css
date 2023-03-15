@@ -68,16 +68,45 @@ html, body {
     cursor: pointer;
 }
 
+/* Logout */
+#LogoutForm {
+    display: none;
+    margin-top: 5vh;
+    margin-right: 5vw;
+}
+
 /* Feeds */
 #output {
     display: none;
-    position: fixed;
+    position: absolute;
     right: 20px;
     bottom: 20px;
     width: 70vw;
-    height: 50vw;
+    height: 50vh;
     background-color: #eee;
     border: 1px solid #ccc;
     padding: 10px;
     overflow: auto;
+    align-items: center;
+}
+
+.feed-container {
+    align-items: center;
+}
+
+.Feed-Image {
+    margin-right: 10px;
+    min-width: 100px;
+    min-height: 15px;
+}
+
+.Feed-Comment-Button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    min-width: 5vw;
+    min-height: 1vh;
 }

@@ -1,8 +1,9 @@
 import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
-import { removeLoginScreen } from './screen.js';
-import { loginError } from './popup.js';
+import { removeLoginScreen, revertLoginScreen } from './screen.js';
+import { loginError, likesPopup } from './popup.js';
+import { getUserName } from './user.js';
 
 
 const url = "http://localhost:" + String(BACKEND_PORT);
@@ -12,7 +13,6 @@ console.log('Let\'s go!');
 var user_logged_in = false;
 var user_token = null;
 var user_id = null;
-
 
 // Milestone 1
 // Login
@@ -99,6 +99,129 @@ RegisterForm.addEventListener("submit", function (event) {
     });
 })
 
+let LogoutForm = document.getElementById("LogoutForm");
+LogoutForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    user_token = null;
+    user_id = null;
+    user_logged_in = false;
+    revertLoginScreen();
+})
+const outputElement = document.getElementById("output");
+function loadFeeds() {
+
+    const fetchURL = url + "/job/feed?start=" + 0 + "&userId=" + user_id;
+    const promise1 = new Promise((resolve, reject) => {
+        fetch(fetchURL, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(`Error: ${response.status}`);
+            }
+        })
+        .then(data => {
+            resolve(data);
+        })
+        .catch(error => {
+            reject(error);
+        })
+    });
+    
+    const promise2 = promise1.then(feeds => {
+        console.log(feeds);
+        console.log(typeof(feeds));
+        const feedArray = Object.values(feeds); // extract the values of the object into an array
+        const promises = feedArray.map(feed => {
+            const div = document.createElement("div");
+            div.classList.add("feed-container");
+
+            // Create and append image element
+            const img = document.createElement("img");
+            img.src = feed.image;
+            img.alt = feed.description;
+            img.classList.add("Feed-Image");
+            div.appendChild(img);
+
+            // Create and append description element
+            const description = document.createElement("div");
+            description.classList.add("feed-description");
+            description.textContent = feed.description;
+            div.appendChild(description);
+
+            const commentsBtn = document.createElement("button");
+            commentsBtn.classList.add("toggle-btn");
+            commentsBtn.textContent = feed.comments.length;
+            div.appendChild(commentsBtn);
+
+            commentsBtn.addEventListener("click", () => {
+                commentsList.classList.toggle("hidden");
+                if (commentsBtn.textContent === "Hide Comments") {
+                    commentsList.style.display = 'none';
+                } else {
+                    commentsList.style.display = 'block';
+                    commentsBtn.textContent = "Hide Comments";
+                }
+            });
+            commentsBtn.classList.add("Feed-Comment-Button");
+
+            const likesBtn = document.createElement("button");
+            likesBtn.classList.add(`${feed.id}likesBtn`);
+            likesBtn.textContent = "Show Likes!";
+            div.appendChild(likesBtn);
+
+            likesBtn.addEventListener("click", function() {
+                likesPopup(feed, user_token);
+            });
+
+            const fetchURL = url + "/user?userId="+feed.creatorId;
+            return fetch(fetchURL, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            const creator = document.createElement("div");
+            creator.classList.add("creator_id");
+            creator.textContent = data.name;
+            div.appendChild(creator);
+
+            outputElement.appendChild(div);
+            return data.name;
+        })
+        .catch(error => {
+            console.log(error);
+            throw error;
+        })
+        });
+        return Promise.all(promises);
+    })
+
+    Promise.all([promise1, promise2])
+    .then(([feeds, creatorName]) => {
+        outputElement.style.display = "block";
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
+
 function createFeed() {
     let data = {
         title: "COO for cupcake factory",
@@ -106,8 +229,8 @@ function createFeed() {
         start: "2011-10-05T14:48:00.000Z",
         description: "Dedicated technical wizard with a passion and interest in human relationships"
     }
-    console.log(user_id);
-    fetch(url + "/job/", {
+    const fetchURL = url + "/job";
+    fetch(fetchURL, {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${user_token}`,
@@ -117,138 +240,17 @@ function createFeed() {
     })
     .then(response => {
         if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error(`Error: ${response.status}`);
+            console.log("Good");
         }
-    })
-    .then(data => {
-        console.log(data);
-    })
-    .catch(err => {
-        console.log("Error: ", err);
-    });
-}
-
-function loadFeeds() {
-    const fetchURL = url + "/job/feed?start=" + 0 + "&userId=" + user_id;
-    fetch(fetchURL, {
-        method: "GET",
-        headers: {
-            'Authorization': `Bearer ${user_token}`,
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        }
-        else {
-            throw new Error(`Error: ${response.status}`);
-        }
-    })
-    .then(data => {
-        const feedList = data;
-        console.log(feedList);
-        showFeeds(feedList);
     })
     .catch(error => {
         console.log(error);
     })
 }
 
-const outputElement = document.getElementById("output");
-
-function showFeeds(feeds) {
-    feeds.forEach(feed => {
-        // Add the main div to the output element
-        outputElement.appendChild(createFeedElement(feed));
-    });
-
-      // Set the output element's display property to "block"
-    outputElement.style.display = "block";
-}
-
-function createFeedElement(feed) {
-    const div = document.createElement("div");
-    div.classList.add("feed-container");
-  
-    // Create and append image element
-    const img = document.createElement("img");
-    img.src = feed.image;
-    img.alt = feed.description;
-    div.appendChild(img);
-  
-    // Create and append ID element
-    const id = document.createElement("div");
-    id.classList.add("feed-id");
-    id.textContent = `ID: ${feed.id}`;
-    div.appendChild(id);
-  
-    // Create and append description element
-    const description = document.createElement("div");
-    description.classList.add("feed-description");
-    description.textContent = feed.description;
-    div.appendChild(description);
-  
-    // Create and append buttons to show/hide likes and comments
-    const likesBtn = document.createElement("button");
-    likesBtn.classList.add("toggle-btn");
-    likesBtn.textContent = "Show likes";
-    div.appendChild(likesBtn);
-  
-    const likesList = document.createElement("ul");
-    likesList.classList.add("feed-likes-list");
-    feed.likes.forEach((like) => {
-        const likeItem = document.createElement("li");
-        likeItem.textContent = like;
-        likesList.appendChild(likeItem);
-    });
-    //div.appendChild(likesList);
-  
-    const commentsBtn = document.createElement("button");
-    commentsBtn.classList.add("toggle-btn");
-    commentsBtn.textContent = "Show comments";
-    div.appendChild(commentsBtn);
-  
-    const commentsList = document.createElement("ul");
-    commentsList.classList.add("feed-comments-list");
-    feed.comments.forEach((comment) => {
-        const commentItem = document.createElement("li");
-        commentItem.textContent = comment;
-        commentsList.appendChild(commentItem);
-    });
-    commentsList.style.display = 'none';
-    div.appendChild(commentsList);
-  
-    // Add event listeners to the buttons to toggle visibility of the lists
-    likesBtn.addEventListener("click", () => {
-        likesList.classList.toggle("hidden");
-        if (likesBtn.textContent === "Show likes") {
-            likesBtn.textContent = "Hide likes";
-        } else {
-            likesBtn.textContent = "Show likes";
-        }
-    });
-  
-    commentsBtn.addEventListener("click", () => {
-        commentsList.classList.toggle("hidden");
-        if (commentsBtn.textContent === "Show comments") {
-            commentsList.style.display = 'block';
-            commentsBtn.textContent = "Hide comments";
-        } else {
-            commentsList.style.display = 'none';
-            commentsBtn.textContent = "Show comments";
-        }
-    });
-  
-    return div;
-  }
-  
-
 function watch() {
     let data = {
-        email: "james@email.com",
+        email: "seumoon@email.com",
         turnon: true
     }
     const fetchURL = url + "/user/watch" + "?userId=" + user_id;
