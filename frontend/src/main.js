@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 import { removeLoginScreen, revertLoginScreen } from './screen.js';
-import { loginError, likesPopup } from './popup.js';
+import { loginError, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
 import { getUserName } from './user.js';
 
 
@@ -13,6 +13,7 @@ console.log('Let\'s go!');
 var user_logged_in = false;
 var user_token = null;
 var user_id = null;
+var feed_index = 0;
 
 // Milestone 1
 // Login
@@ -48,10 +49,11 @@ LoginForm.addEventListener("submit", function (event) {
             user_logged_in = true;
             removeLoginScreen();
             loadFeeds();
+            loadCurrentUserScreen();
         })
         .catch(error => {
             console.log(error);
-            openPopup_Login();
+            loginError();
         });
 })
 
@@ -107,10 +109,21 @@ LogoutForm.addEventListener("submit", function(event) {
     user_logged_in = false;
     revertLoginScreen();
 })
-const outputElement = document.getElementById("output");
-function loadFeeds() {
 
-    const fetchURL = url + "/job/feed?start=" + 0 + "&userId=" + user_id;
+// Feeds
+// TODO: add comments, write comments, and Update, Delete job
+const outputElement = document.getElementById("output");
+
+// Infinite Scroll
+outputElement.addEventListener('scroll', function() {
+    if (outputElement.scrollTop + outputElement.clientHeight >= outputElement.scrollHeight) {
+        loadFeeds();
+    }
+})
+
+function loadFeeds() {
+    const fetchURL = url + "/job/feed?start=" + feed_index + "&userId=" + user_id;
+    feed_index += 5;
     const promise1 = new Promise((resolve, reject) => {
         fetch(fetchURL, {
             method: "GET",
@@ -136,12 +149,10 @@ function loadFeeds() {
     });
     
     const promise2 = promise1.then(feeds => {
-        console.log(feeds);
-        console.log(typeof(feeds));
         const feedArray = Object.values(feeds); // extract the values of the object into an array
         const promises = feedArray.map(feed => {
             const div = document.createElement("div");
-            div.classList.add("feed-container");
+            div.classList.add(`feed-${feed.id}`);
 
             // Create and append image element
             const img = document.createElement("img");
@@ -152,7 +163,7 @@ function loadFeeds() {
 
             // Create and append description element
             const description = document.createElement("div");
-            description.classList.add("feed-description");
+            description.classList.add(`${feed.id}description`);
             description.textContent = feed.description;
             div.appendChild(description);
 
@@ -172,6 +183,36 @@ function loadFeeds() {
             });
             commentsBtn.classList.add("Feed-Comment-Button");
 
+            /*
+            When the creator of the feed is the user himself
+            */
+            if (feed.creatorId == user_id) {
+                // Feed needs to have delete button
+                const deleteBtn = document.createElement("button");
+                deleteBtn.classList.add(`${feed.id}deleteBtn`);
+                deleteBtn.textContent = "Delete Feed";
+
+                div.appendChild(deleteBtn);
+
+                deleteBtn.addEventListener("click", function() {
+                    deleteFeed(feed);
+                });
+
+                // Add update Feed button
+                const updateBtn = document.createElement("button");
+                updateBtn.classList.add(`${feed.id}updateBtn`);
+                updateBtn.textContent = "Update Feed";
+
+                div.appendChild(updateBtn);
+
+                updateBtn.addEventListener("click", function() {
+                    updateFeedPopup(feed).then((data => {
+                        updateFeed(feed, feed.id, data.title, data.image, data.description);
+                    }));
+                });
+
+            }
+            
             const likesBtn = document.createElement("button");
             likesBtn.classList.add(`${feed.id}likesBtn`);
             likesBtn.textContent = "Show Likes!";
@@ -222,35 +263,76 @@ function loadFeeds() {
     });
 }
 
-function createFeed() {
-    let data = {
-        title: "COO for cupcake factory",
-        image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
-        start: "2011-10-05T14:48:00.000Z",
-        description: "Dedicated technical wizard with a passion and interest in human relationships"
+// User Profile Update form
+const UpdateProfileForm = document.getElementById("UserUpdateProfile");
+UpdateProfileForm.addEventListener("submit", function(event){
+    event.preventDefault();
+    const email = document.getElementById("updateEmail").value;
+    const pd = document.getElementById("updatePD").value;
+    const name = document.getElementById("updateName").value;
+    const image = document.getElementById("updateImage").value;
+
+    let data = {};
+
+    if (email !== '') {
+        data.email = email;
     }
-    const fetchURL = url + "/job";
-    fetch(fetchURL, {
-        method: "POST",
+    if (pd !== '') {
+        data.password = pd;
+    }
+    if (name !== '') {
+        data.name = name;
+    }
+    if (image !== '') {
+        data.image = image;
+    }
+
+    fetch(url + "/user", {
+        method: "PUT",
         headers: {
             'Authorization': `Bearer ${user_token}`,
-            'Content-Type': 'application/json',
+            'content-type': 'application/json'
         },
         body: JSON.stringify(data)
     })
     .then(response => {
-        if (response.ok) {
-            console.log("Good");
+        if (!response) {
+            throw new Error(`Error: ${response.status}`);
         }
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
+})
+
+// Load User screen
+function loadCurrentUserScreen() {
+    loadUserScreen(user_id);
+    const UserUpdateForm = document.getElementById("UserUpdateProfile");
+    UserUpdateForm.style.display = "block";
+
+    const div = document.createElement("div");
+    div.classList.add(`current`);
+    document.body.appendChild(div);
+
+    const addBtn = document.createElement("button");
+    addBtn.classList.add(`btns`);
+    addBtn.textContent = "Add feed";
+
+    div.appendChild(addBtn);
+
+    addBtn.addEventListener("click", function() {
+        createFeedPopup().then((data) => {
+            console.log("Hello");
+            addFeed(data.title, data.image, data.description);
+        });
+    });
 }
 
-function watch() {
+//done
+function watch(user_email) {
     let data = {
-        email: "seumoon@email.com",
+        email: user_email,
         turnon: true
     }
     const fetchURL = url + "/user/watch" + "?userId=" + user_id;
@@ -264,8 +346,281 @@ function watch() {
     })
     .then(response => {
         if (response.ok) {
-            console.log("Good");
+            console.log("Watch Successful");
         }
+    })
+    .catch(error => {
+        console.log(error);
+    })
+}
+
+function unwatch(user_email) {
+    let data = {
+        email: user_email,
+        turnon: false
+    }
+    const fetchURL = url + "/user/watch" + "?userId=" + user_id;
+    fetch(fetchURL, {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("Unwatch Successful");
+        }
+    })
+    .catch(error => {
+        console.log(error);
+    })
+}
+
+
+function loadUserScreen(userId) {
+    const fetchURL1 = url + "/user?userId="+userId;
+
+    const div = document.createElement("div");
+    div.classList.add("Watching-Users");
+    let user_email = '';
+
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.setAttribute('class', 'my-button');
+    button.textContent = 'Watch';
+
+    div.appendChild(button);
+
+    const promise1 = new Promise((resolve, reject) => {
+        fetch(fetchURL1, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if(!response) {
+                reject(response);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const userEmail = data.email;
+            const userName = data.name;
+            user_email = userEmail;
+            const paragraph = document.createElement("p");
+            const textNode = document.createTextNode(`User email: ${userEmail}, User name: ${userName}`);
+            paragraph.appendChild(textNode);
+            document.body.appendChild(paragraph);
+
+            //resolve(data.watcheeUserIds);
+            resolve(data);
+        })
+        .catch(error => {
+            reject(error);
+        })
+    });
+    const promise2 = promise1.then(data => {
+        const watcheeUserIds = data.watcheeUserIds;
+        watcheeUserIds.forEach(userId => {
+            const fetchURL2 = url + "/user?userId="+userId;
+            fetch(fetchURL2, {
+                method: "GET",
+                headers: {
+                    'Authorization': `Bearer ${user_token}`,
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (!response) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const p = document.createElement("p");
+                const textNode1 = document.createTextNode(`Watching User: ${data.name}`);
+                p.appendChild(textNode1);
+                div.appendChild(p);
+            })
+            .catch(error => {
+                throw new Error(`Error: ${error}`);
+            })
+        });
+        document.body.appendChild(div);
+        return data;
+    });
+    //let the user watch himself
+    const promise3 = promise2.then(data => {
+        button.addEventListener('click', function() {
+            if (button.textContent === 'Watch') {
+                button.textContent = 'Unwatch';
+                watch(data.email);
+            } else {
+                button.textContent = 'Watch';
+                unwatch(data.email);
+            }
+        });
+        let req = {
+            email: data.email,
+            turnon: true
+        }
+        const fetchURL3 = url + "/user/watch" + "?userId=" + userId;
+        fetch(fetchURL3, {
+            method: "PUT",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            throw new Error(`Error: ${error}`);
+        })
+    });
+    
+    const promise4 = new Promise((resolve, reject) => {
+        const fetchURL4 = url + "/job/feed?start=" + 0 + "&userId=" + userId;
+        fetch(fetchURL4, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                throw new Error(`Error: ${response.status}`);
+            }
+        })
+        .then(data => {
+            data.forEach(feed => {
+                if (feed.creatorId == userId){
+                    const p = document.createElement("p");
+                    const textNode1 = document.createTextNode(`Creator ID: ${feed.creatorId}, Description: ${feed.description}`);
+                    p.appendChild(textNode1);
+                    div.appendChild(p);
+                }
+            });
+        })
+        .catch(error => {
+            reject(error);
+        })
+        document.body.appendChild(div);
+    });
+
+    Promise.all([promise1, promise2, promise3, promise4])
+    .catch(error => {
+        console.error(error);
+    });
+}
+
+function addFeed(title, image, description) {
+    const start = new Date();
+    const start_toString = start.toISOString();
+
+    let data = {
+        title: title,
+        image: image,
+        start: start_toString,
+        description: description
+    }
+    const fetchURL = url+"/job";
+    fetch(fetchURL, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if(!response.ok) {
+            throw new Error(`Error: ${response.status}`)
+        }
+        while(outputElement.firstChild) {
+            outputElement.removeChild(outputElement.firstChild);
+        }
+        feed_index = 0;
+        loadFeeds();
+    })
+    .catch(error => {
+        throw new Error(`Error: ${error}`)
+    })
+}
+
+//Working!
+function deleteFeed(feed) {
+    if (feed.creatorId != user_id) {
+        throw new Error("You are not a creator!!!!");
+    }
+    let data = {
+        id: feed.id
+    }
+    const fetchURL = url + "/job";
+    fetch(fetchURL, {
+        method: "DELETE",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+        const feed_to_be_deleted = document.getElementsByClassName(`feed-${feed.id}`);
+        console.log(feed_to_be_deleted);
+        for (let i = 0; i < feed_to_be_deleted.length; i++) {
+            feed_to_be_deleted[i].remove();
+        }
+    })
+    .catch(error =>{
+        throw new Error(`Error: ${error}`);
+    })
+}
+
+// Done
+function updateFeed(feed, id, title, image, description) {
+    const start = new Date();
+    const start_toString = start.toISOString();
+
+    let data = {
+        id: id,
+        title: title,
+        image: image,
+        start: start_toString,
+        description: description
+    }
+
+    const fetchURL = url+"/job";
+    fetch(fetchURL, {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+        
+        const feed_to_be_updated = document.getElementsByClassName(`${feed.id}description`)[0];
+        feed_to_be_updated.textContent = description;
     })
     .catch(error => {
         console.log(error);

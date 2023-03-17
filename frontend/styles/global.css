@@ -82,12 +82,16 @@ html, body {
     right: 20px;
     bottom: 20px;
     width: 70vw;
-    height: 50vh;
+    height: 30vh;
     background-color: #eee;
     border: 1px solid #ccc;
     padding: 10px;
     overflow: auto;
     align-items: center;
+}
+
+#UserUpdateProfile {
+    display: none;
 }
 
 .feed-container {

@@ -81,3 +81,120 @@ export function likesPopup(feed, user_token) {
         console.error(error);
     });
 }
+
+export function updateFeedPopup(feed) {
+    var popupWidth = 400;
+    var popupHeight = 200;
+    var screenLeft = (window.screen.width - popupWidth) / 2;
+    var screenTop = (window.screen.height - popupWidth) / 2;
+    var popupWindow = window.open("", "Update Feed", "width="+popupWidth + ",height="+popupHeight + ",left="+screenLeft+",top="+screenTop);
+
+    var closeButton = popupWindow.document.createElement("button");
+    closeButton.textContent = "Close";
+    closeButton.addEventListener("click", function() {
+        popupWindow.close();
+    });
+    popupWindow.document.body.appendChild(closeButton);
+
+    const form = document.createElement("form");
+
+    const title = document.createElement("input");
+    const image = document.createElement("input");
+    const description = document.createElement("input");
+
+    title.type = "text";
+    title.name = "Title: ";
+    title.value = feed.title;
+
+    image.type = "text";
+    image.name = "Image: ";
+    image.value = feed.image;
+
+    description.type = "text";
+    description.name = "Description: ";
+    description.value = feed.description;
+
+    form.appendChild(title);
+    form.appendChild(image);
+    form.appendChild(description);
+
+    const submitBtn = document.createElement("input");
+    submitBtn.type = "submit";
+    submitBtn.value = "Update!";
+
+    form.appendChild(submitBtn);
+    popupWindow.document.body.appendChild(form);
+
+    const formPromise = new Promise((resolve) => {
+        form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const data = {
+            title: title.value,
+            image: image.value,
+            description: description.value,
+        };
+            popupWindow.close();
+            resolve(data);
+        });
+    });
+    return formPromise;
+}
+
+export function createFeedPopup() {
+    var popupWidth = 400;
+    var popupHeight = 200;
+    var screenLeft = (window.screen.width - popupWidth) / 2;
+    var screenTop = (window.screen.height - popupWidth) / 2;
+    var popupWindow = window.open("", "Update Feed", "width="+popupWidth + ",height="+popupHeight + ",left="+screenLeft+",top="+screenTop);
+
+    var closeButton = popupWindow.document.createElement("button");
+    closeButton.textContent = "Close";
+    closeButton.addEventListener("click", function() {
+        popupWindow.close();
+    });
+    popupWindow.document.body.appendChild(closeButton);
+
+    const form = document.createElement("form");
+
+    const title = document.createElement("input");
+    const image = document.createElement("input");
+    const description = document.createElement("input");
+
+    title.type = "text";
+    title.name = "Title: ";
+    title.value = '';
+
+    image.type = "text";
+    image.name = "Image: ";
+    image.value = ``;
+
+    description.type = "text";
+    description.name = "Description: ";
+    description.value = '';
+
+    form.appendChild(title);
+    form.appendChild(image);
+    form.appendChild(description);
+
+    const submitBtn = document.createElement("input");
+    submitBtn.type = "submit";
+    submitBtn.value = "Add Feed!";
+
+    form.appendChild(submitBtn);
+    popupWindow.document.body.appendChild(form);
+
+    const formPromise = new Promise((resolve) => {
+        form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const data = {
+            title: title.value,
+            image: image.value,
+            description: description.value,
+        };
+            popupWindow.close();
+            resolve(data);
+        });
+    });
+    return formPromise;
+}
+

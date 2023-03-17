@@ -20,7 +20,6 @@ export function getUserName(userId, user_token) {
     })
     .then(data => {
         console.log(data);
-        //resolve(data.name);
         return data.namel
     })
     .catch(error => {
