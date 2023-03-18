@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 import { removeLoginScreen, revertLoginScreen } from './screen.js';
-import { loginError, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
+import { loginError, commentsPopup, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
 import { getUserName } from './user.js';
 
 
@@ -14,6 +14,8 @@ var user_logged_in = false;
 var user_token = null;
 var user_id = null;
 var feed_index = 0;
+var user_email = null;
+var userName = null;
 
 // Milestone 1
 // Login
@@ -27,6 +29,7 @@ LoginForm.addEventListener("submit", function (event) {
         email: userId,
         password: password
     }
+
     fetch(url + "/auth/login", {
         method: "POST",
         headers: {
@@ -34,27 +37,48 @@ LoginForm.addEventListener("submit", function (event) {
         },
         body: JSON.stringify(data)
     })
-        .then(response => {
-            console.log(BACKEND_PORT);
-            if (!response.ok) {
-                console.log("Error here");
-                loginError("You typed wrong id or password. Please try agian!");
-                throw new Error("Response not okay");
-            }
+    .then(response => {
+        if (response.ok) {
             return response.json();
-        })
-        .then(data => {
-            user_token = data.token;
-            user_id = data.userId;
-            user_logged_in = true;
-            removeLoginScreen();
-            loadFeeds();
-            loadCurrentUserScreen();
-        })
-        .catch(error => {
-            console.log(error);
-            loginError();
+        }
+        else {
+            loginError("You typed wrong id or password. Please try agian!");
+        }
+    })
+    .then(data => {
+        user_token = data.token;
+        user_id = data.userId;
+        user_logged_in = true;
+        user_email = userId;
+    
+        // Make the GET request after user_id has been set
+        return fetch(url + "/user?userId=" + user_id, {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${user_token}`,
+                'Content-Type': 'application/json'
+            },
         });
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            throw new Error(`Error: ${response.status}`);
+        }
+    })
+    .then(data => {
+        userName = data.name;
+    
+        // Now that all data has been fetched, remove the login screen and load the feeds
+        removeLoginScreen();
+        loadFeeds();
+        loadCurrentUserScreen();
+    })
+    .catch(error => {
+        throw new Error(`Error: ${error}`);
+    });
 })
 
 // Register
@@ -121,6 +145,7 @@ outputElement.addEventListener('scroll', function() {
     }
 })
 
+// TODO: Starting date, when job was posted
 function loadFeeds() {
     const fetchURL = url + "/job/feed?start=" + feed_index + "&userId=" + user_id;
     feed_index += 5;
@@ -167,21 +192,15 @@ function loadFeeds() {
             description.textContent = feed.description;
             div.appendChild(description);
 
-            const commentsBtn = document.createElement("button");
-            commentsBtn.classList.add("toggle-btn");
-            commentsBtn.textContent = feed.comments.length;
-            div.appendChild(commentsBtn);
+            const likesBtn = document.createElement("button");
+            likesBtn.classList.add(`${feed.id}likesBtn`);
+            likesBtn.textContent = feed.likes.length;
+            div.appendChild(likesBtn);
 
-            commentsBtn.addEventListener("click", () => {
-                commentsList.classList.toggle("hidden");
-                if (commentsBtn.textContent === "Hide Comments") {
-                    commentsList.style.display = 'none';
-                } else {
-                    commentsList.style.display = 'block';
-                    commentsBtn.textContent = "Hide Comments";
-                }
+            likesBtn.addEventListener("click", () => {
+                likesPopup(feed);
             });
-            commentsBtn.classList.add("Feed-Comment-Button");
+            likesBtn.classList.add("Feed-Comment-Button");
 
             /*
             When the creator of the feed is the user himself
@@ -213,14 +232,63 @@ function loadFeeds() {
 
             }
             
-            const likesBtn = document.createElement("button");
-            likesBtn.classList.add(`${feed.id}likesBtn`);
-            likesBtn.textContent = "Show Likes!";
-            div.appendChild(likesBtn);
+            const commentsBtn = document.createElement("button");
+            commentsBtn.classList.add(`${feed.id}commentsBtn`);
+            commentsBtn.textContent = `Show Comments!`;
+            div.appendChild(commentsBtn);
 
-            likesBtn.addEventListener("click", function() {
-                likesPopup(feed, user_token);
+            commentsBtn.addEventListener("click", function() {
+                commentsPopup(feed, user_token);
             });
+
+            let current_user_likes_feed = false;
+            feed.likes.forEach(like => {
+                if (like.userId == user_id) {
+                    current_user_likes_feed = true;
+                }
+            })
+
+            const userLikesFeedBtn = document.createElement("button");
+            userLikesFeedBtn.classList.add(`${feed.id}userLikesBtn`);
+            if (!current_user_likes_feed) {
+                userLikesFeedBtn.textContent = `\u{2764}\u{FE0F}`;
+            }
+            else {
+                userLikesFeedBtn.textContent = `\u2661`;
+            }
+            div.appendChild(userLikesFeedBtn);
+            userLikesFeedBtn.addEventListener("click", function() {
+                if (userLikesFeedBtn.textContent == `\u{2764}\u{FE0F}`) {
+                    likeFeed(feed, true);
+                    userLikesFeedBtn.textContent = `\u2661`;
+                }
+                else {
+                    likeFeed(feed, false);
+                    userLikesFeedBtn.textContent = `\u{2764}\u{FE0F}`;
+                }
+
+                
+            });
+
+            const commentInput = document.createElement(`input`);
+            commentInput.type = `comment`;
+
+            //commentInput.classList.add(`commentInput`);
+
+            const commentLabel = document.createElement('label');
+            commentLabel.textContent = 'Type Comment!: ';
+            div.appendChild(commentLabel);
+            div.appendChild(commentInput);
+
+            const commentBtn = document.createElement('button');
+            commentBtn.classList.add(`${feed.id}userCommentBtn`);
+            commentBtn.textContent = 'Done Writing?';
+            div.appendChild(commentBtn);
+            commentBtn.addEventListener("click", function() {
+                const comment = commentInput.value;
+                writeComment(feed, comment);
+            })
+
 
             const fetchURL = url + "/user?userId="+feed.creatorId;
             return fetch(fetchURL, {
@@ -378,13 +446,11 @@ function unwatch(user_email) {
     })
 }
 
-
 function loadUserScreen(userId) {
     const fetchURL1 = url + "/user?userId="+userId;
 
     const div = document.createElement("div");
     div.classList.add("Watching-Users");
-    let user_email = '';
 
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -392,6 +458,11 @@ function loadUserScreen(userId) {
     button.textContent = 'Watch';
 
     div.appendChild(button);
+
+    const goBack = document.createElement('button');
+    goBack.textContent = 'Go back to the main page';
+    div.appendChild(goBack);
+    
 
     const promise1 = new Promise((resolve, reject) => {
         fetch(fetchURL1, {
@@ -415,8 +486,6 @@ function loadUserScreen(userId) {
             const textNode = document.createTextNode(`User email: ${userEmail}, User name: ${userName}`);
             paragraph.appendChild(textNode);
             document.body.appendChild(paragraph);
-
-            //resolve(data.watcheeUserIds);
             resolve(data);
         })
         .catch(error => {
@@ -526,6 +595,7 @@ function loadUserScreen(userId) {
     });
 }
 
+//TODO: ADD Label
 function addFeed(title, image, description) {
     const start = new Date();
     const start_toString = start.toISOString();
@@ -560,7 +630,6 @@ function addFeed(title, image, description) {
     })
 }
 
-//Working!
 function deleteFeed(feed) {
     if (feed.creatorId != user_id) {
         throw new Error("You are not a creator!!!!");
@@ -592,7 +661,6 @@ function deleteFeed(feed) {
     })
 }
 
-// Done
 function updateFeed(feed, id, title, image, description) {
     const start = new Date();
     const start_toString = start.toISOString();
@@ -621,6 +689,78 @@ function updateFeed(feed, id, title, image, description) {
         
         const feed_to_be_updated = document.getElementsByClassName(`${feed.id}description`)[0];
         feed_to_be_updated.textContent = description;
+    })
+    .catch(error => {
+        console.log(error);
+    })
+}
+
+function writeComment(feed, comment){
+    const fetchURL = url+'/job/comment';
+    let data = {
+        id: feed.id,
+        comment: comment
+    }
+    fetch(fetchURL, {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        console.log(response);
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+        let current_comment = {
+            userId: user_id,
+            userEmail: user_email,
+            userName: userName,
+            comment: comment
+        }
+        feed.comments.push(current_comment);
+    })
+    .catch(error => {
+        console.log(error);
+    })
+}
+
+function likeFeed(feed, likes) {
+    const fetchURL = url+'/job/like';
+    let data = {
+        id: feed.id,
+        turnon: likes
+    }
+    fetch(fetchURL, {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${user_token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+        }
+        const likeBtn = document.getElementsByClassName(`${feed.id}likesBtn`);
+        let l = {
+            userId: user_id,
+            userEmail: user_email,
+            userName: userName
+        }
+        if (likes) {
+            feed.likes.push(l);
+        }
+        else {
+            const index = feed.likes.findIndex(like => like.userId === user_id);
+            if (index !== -1) {
+                feed.likes.splice(index, 1);
+            }
+        }
+        likeBtn[0].textContent = feed.likes.length;
     })
     .catch(error => {
         console.log(error);

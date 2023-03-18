@@ -19,10 +19,9 @@ export function revertLoginScreen() {
 }
 
 export function otherUserScreen() {
-    console.log("otherUserScreen");
     removeLoginScreen();
     const parent = document.getElementById("output");
-
+    parent.style.display = 'none';
     const Feeds = parent.querySelectorAll(".feed-container");
     if (!Feeds) {
         console.log("No!");
