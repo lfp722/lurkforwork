@@ -1,6 +1,6 @@
 /* base styles, feel free to edit */
 html, body {
-    background-color: rgb(153, 185, 245);
+    background-color: #F5F5DC;
     margin: 0;
     padding: 0;
     height: 100%;
@@ -14,81 +14,128 @@ html, body {
 
 /* Login */
 #LoginForm {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 5vh;
     margin-left: 5vw;
+    margin-right: 5vw;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    height: 30vh;
+    justify-content: center;
+    text-align: center;
+}
+#LoginForm h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 #LoginForm label {
     display: block;
+    font-size: 16px;
+    font-weight: bold;
     margin-bottom: 10px;
 }
 #LoginForm input[type="text"] {
-    display: block;
+    width: 100%;
     margin-bottom: 20px;
-    padding: 5px;
+    padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: none;
+    background-color: #f5f5f5;
+    font-size: 16px;
+    color: #333;
 }
 #LoginForm button {
     display: block;
     margin-top: 20px;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 5px;
     border: none;
     background-color: #007bff;
     color: #fff;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
+#LoginForm button:hover {
+    background-color: #005299;
+}
+
 
 /* Register */
 #RegisterForm {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 5vh;
     margin-left: 5vw;
+    margin-right: 5vw;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 #RegisterForm label {
     display: block;
     margin-bottom: 10px;
+    font-weight: bold;
 }
 #RegisterForm input[type="text"] {
     display: block;
     margin-bottom: 20px;
-    padding: 5px;
+    padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    font-size: 16px;
 }
 #RegisterForm button {
     display: block;
     margin-top: 20px;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 5px;
     border: none;
     background-color: #007bff;
     color: #fff;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 /* Logout */
 #LogoutForm {
     display: none;
+    position: absolute;
+    right: 5px;
+    top: 5px;
     margin-top: 5vh;
     margin-right: 5vw;
+}
+#LogoutForm > button {
+    background-color: #85B5D6;
 }
 
 /* Feeds */
 #output {
     display: none;
     position: absolute;
-    right: 20px;
+    left: 0;
+    right: 0;
+    margin: auto;
     bottom: 20px;
-    width: 70vw;
-    height: 30vh;
-    background-color: #eee;
+    width: 90vw;
+    height:80vh;
+    background-color: #FCFCF5;
     border: 1px solid #ccc;
     padding: 10px;
     overflow: auto;
-    align-items: center;
 }
+
 
 #UserUpdateProfile {
     display: none;
@@ -105,7 +152,7 @@ html, body {
 }
 
 .Feed-Comment-Button {
-    background-color: #007bff;
+    background-color: #85B5D6;
     color: #fff;
     padding: 10px 20px;
     border-radius: 5px;

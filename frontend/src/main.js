@@ -1,7 +1,7 @@
 import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
-import { removeLoginScreen, revertLoginScreen } from './screen.js';
+import { removeLoginScreen, revertLoginScreen, goBacktoMainScreen } from './screen.js';
 import { loginError, commentsPopup, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
 import { getUserName } from './user.js';
 
@@ -70,11 +70,9 @@ LoginForm.addEventListener("submit", function (event) {
     })
     .then(data => {
         userName = data.name;
-    
         // Now that all data has been fetched, remove the login screen and load the feeds
         removeLoginScreen();
         loadFeeds();
-        loadCurrentUserScreen();
     })
     .catch(error => {
         throw new Error(`Error: ${error}`);
@@ -125,6 +123,7 @@ RegisterForm.addEventListener("submit", function (event) {
     });
 })
 
+// Logout
 let LogoutForm = document.getElementById("LogoutForm");
 LogoutForm.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -134,8 +133,13 @@ LogoutForm.addEventListener("submit", function(event) {
     revertLoginScreen();
 })
 
+let viewProfileForm = document.getElementById("viewProfileForm");
+viewProfileForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    loadCurrentUserScreen();
+});
+
 // Feeds
-// TODO: add comments, write comments, and Update, Delete job
 const outputElement = document.getElementById("output");
 
 // Infinite Scroll
@@ -391,13 +395,11 @@ function loadCurrentUserScreen() {
 
     addBtn.addEventListener("click", function() {
         createFeedPopup().then((data) => {
-            console.log("Hello");
             addFeed(data.title, data.image, data.description);
         });
     });
 }
 
-//done
 function watch(user_email) {
     let data = {
         email: user_email,
@@ -453,15 +455,17 @@ function loadUserScreen(userId) {
     div.classList.add("Watching-Users");
 
     const button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.setAttribute('class', 'my-button');
+    button.className = 'userPageWatchB';
     button.textContent = 'Watch';
-
     div.appendChild(button);
 
     const goBack = document.createElement('button');
     goBack.textContent = 'Go back to the main page';
     div.appendChild(goBack);
+
+    goBack.addEventListener("click", function() {
+        goBacktoMainScreen();
+    });
     
 
     const promise1 = new Promise((resolve, reject) => {
@@ -483,6 +487,7 @@ function loadUserScreen(userId) {
             const userName = data.name;
             user_email = userEmail;
             const paragraph = document.createElement("p");
+            paragraph.className = 'UserInfoP';
             const textNode = document.createTextNode(`User email: ${userEmail}, User name: ${userName}`);
             paragraph.appendChild(textNode);
             document.body.appendChild(paragraph);
@@ -511,6 +516,7 @@ function loadUserScreen(userId) {
             })
             .then(data => {
                 const p = document.createElement("p");
+                p.className = 'WatchingUserP';
                 const textNode1 = document.createTextNode(`Watching User: ${data.name}`);
                 p.appendChild(textNode1);
                 div.appendChild(p);
@@ -577,6 +583,7 @@ function loadUserScreen(userId) {
             data.forEach(feed => {
                 if (feed.creatorId == userId){
                     const p = document.createElement("p");
+                    p.className = 'userPageFeeds';
                     const textNode1 = document.createTextNode(`Creator ID: ${feed.creatorId}, Description: ${feed.description}`);
                     p.appendChild(textNode1);
                     div.appendChild(p);
@@ -595,7 +602,6 @@ function loadUserScreen(userId) {
     });
 }
 
-//TODO: ADD Label
 function addFeed(title, image, description) {
     const start = new Date();
     const start_toString = start.toISOString();
@@ -619,6 +625,7 @@ function addFeed(title, image, description) {
         if(!response.ok) {
             throw new Error(`Error: ${response.status}`)
         }
+        // Remove the current shown feeds and load again.
         while(outputElement.firstChild) {
             outputElement.removeChild(outputElement.firstChild);
         }

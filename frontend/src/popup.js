@@ -99,14 +99,11 @@ export function likesPopup(feed) {
     Object.entries(likes).forEach((l) => {
         const value = l[1];
         const user_name = value.userName;
-        const someUrl = "http://localhost:"+5000;
         const link = popupWindow.document.createElement('a');
-        link.href = someUrl;
         link.textContent = user_name;
         link.addEventListener('click', (event) => {
             event.preventDefault();
             popupWindow.close();
-            window.location.href = someUrl;
             otherUserScreen();
         });
         const comment = popupWindow.document.createElement('p');
@@ -188,34 +185,38 @@ export function createFeedPopup() {
     var screenTop = (window.screen.height - popupWidth) / 2;
     var popupWindow = window.open("", "Update Feed", "width="+popupWidth + ",height="+popupHeight + ",left="+screenLeft+",top="+screenTop);
 
-    var closeButton = popupWindow.document.createElement("button");
-    closeButton.textContent = "Close";
-    closeButton.addEventListener("click", function() {
-        popupWindow.close();
-    });
-    popupWindow.document.body.appendChild(closeButton);
-
     const form = document.createElement("form");
 
     const title = document.createElement("input");
+    const title_label = document.createElement("label");
+    title_label.innerHTML = "Title: ";
+    
     const image = document.createElement("input");
+    const image_label = document.createElement("label");
+    image_label.innerHTML = "Image: ";
+    
     const description = document.createElement("input");
-
+    const description_label = document.createElement("label");
+    description_label.innerHTML = "Description: ";
+    
     title.type = "text";
-    title.name = "Title: ";
-    title.value = '';
-
+    title.name = "title";
+    
     image.type = "text";
-    image.name = "Image: ";
-    image.value = ``;
-
+    image.name = "image";
+    
     description.type = "text";
-    description.name = "Description: ";
-    description.value = '';
-
+    description.name = "description";
+    
+    form.appendChild(title_label);
     form.appendChild(title);
+    form.appendChild(document.createElement("br"));
+    form.appendChild(image_label);
     form.appendChild(image);
+    form.appendChild(document.createElement("br"));
+    form.appendChild(description_label);
     form.appendChild(description);
+    form.appendChild(document.createElement("br"));
 
     const submitBtn = document.createElement("input");
     submitBtn.type = "submit";
