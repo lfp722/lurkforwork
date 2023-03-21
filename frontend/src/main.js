@@ -1,7 +1,7 @@
 import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
-import { removeLoginScreen, revertLoginScreen, goBacktoMainScreen } from './screen.js';
+import { removeLoginScreen, revertLoginScreen, goBacktoMainScreen, getUserProfileButton, removeUserProfileButton } from './screen.js';
 import { loginError, commentsPopup, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
 import { getUserName } from './user.js';
 
@@ -19,6 +19,7 @@ var userName = null;
 
 // Milestone 1
 // Login
+// Once login, the user will be directed to the main page.
 const LoginForm = document.getElementById("LoginForm");
 LoginForm.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -73,6 +74,7 @@ LoginForm.addEventListener("submit", function (event) {
         // Now that all data has been fetched, remove the login screen and load the feeds
         removeLoginScreen();
         loadFeeds();
+        getUserProfileButton();
     })
     .catch(error => {
         throw new Error(`Error: ${error}`);
@@ -137,11 +139,12 @@ let viewProfileForm = document.getElementById("viewProfileForm");
 viewProfileForm.addEventListener("submit", function(event) {
     event.preventDefault();
     loadCurrentUserScreen();
+    removeUserProfileButton();
+    viewProfileForm.style.display = 'none';
 });
 
 // Feeds
 const outputElement = document.getElementById("output");
-
 // Infinite Scroll
 outputElement.addEventListener('scroll', function() {
     if (outputElement.scrollTop + outputElement.clientHeight >= outputElement.scrollHeight) {
@@ -181,6 +184,7 @@ function loadFeeds() {
         const feedArray = Object.values(feeds); // extract the values of the object into an array
         const promises = feedArray.map(feed => {
             const div = document.createElement("div");
+            div.id = 'feed';
             div.classList.add(`feed-${feed.id}`);
 
             // Create and append image element
@@ -384,11 +388,12 @@ function loadCurrentUserScreen() {
     UserUpdateForm.style.display = "block";
 
     const div = document.createElement("div");
-    div.classList.add(`current`);
+    div.classList.add(`current_user_screen`);
     document.body.appendChild(div);
 
     const addBtn = document.createElement("button");
     addBtn.classList.add(`btns`);
+    addBtn.className = "addFeedButton";
     addBtn.textContent = "Add feed";
 
     div.appendChild(addBtn);
@@ -448,7 +453,7 @@ function unwatch(user_email) {
     })
 }
 
-function loadUserScreen(userId) {
+export function loadUserScreen(userId) {
     const fetchURL1 = url + "/user?userId="+userId;
 
     const div = document.createElement("div");
@@ -460,13 +465,31 @@ function loadUserScreen(userId) {
     div.appendChild(button);
 
     const goBack = document.createElement('button');
+    goBack.className = 'goBackBtn';
     goBack.textContent = 'Go back to the main page';
     div.appendChild(goBack);
 
+    const feeds = document.createElement("div");
+    feeds.id = "userProfileFeeds";
+    feeds.style.display = 'block';
+
     goBack.addEventListener("click", function() {
         goBacktoMainScreen();
+        goBack.style.display = 'none';
+        button.style.display = 'none';
+        const chileFeed = feeds.querySelectorAll('div');
+        chileFeed.forEach(div => div.remove());
+        
+        const addBtn = document.getElementsByClassName("addFeedButton");
+        console.log(addBtn);
+        for (let i = 0; i < addBtn.length; i++) {
+            const childBtns = addBtn[i];
+            childBtns.remove();
+        }
+        viewProfileForm.style.display = 'block';
     });
     
+    outputElement.style.display = 'none';
 
     const promise1 = new Promise((resolve, reject) => {
         fetch(fetchURL1, {
@@ -483,6 +506,10 @@ function loadUserScreen(userId) {
             return response.json();
         })
         .then(data => {
+            const div = document.createElement("div");
+            div.classList.add(`userInfo`);
+            document.body.appendChild(div);
+
             const userEmail = data.email;
             const userName = data.name;
             user_email = userEmail;
@@ -490,7 +517,7 @@ function loadUserScreen(userId) {
             paragraph.className = 'UserInfoP';
             const textNode = document.createTextNode(`User email: ${userEmail}, User name: ${userName}`);
             paragraph.appendChild(textNode);
-            document.body.appendChild(paragraph);
+            div.appendChild(paragraph);
             resolve(data);
         })
         .catch(error => {
@@ -582,11 +609,37 @@ function loadUserScreen(userId) {
         .then(data => {
             data.forEach(feed => {
                 if (feed.creatorId == userId){
+                    const feedsDiv = document.createElement("div");
+                    feedsDiv.classList.add(`feedsCreatedByUser`);
+
+                    const img = document.createElement("img");
+                    img.src = feed.image;
+                    img.alt = feed.description;
+                    img.classList.add("Feed-Image");
+                    feedsDiv.appendChild(img);
+
+                    const title = document.createElement("h2");
+                    const titleText = document.createTextNode(`${feed.title}`);
+                    title.appendChild(titleText);
+                    feedsDiv.appendChild(title);
+
+
+                    const likes = document.createElement("p");
+                    const likesText = document.createTextNode(feed.likes.length);
+                    likes.appendChild(likesText);
+                    feedsDiv.appendChild(likes);
+
+                    const comments = document.createElement("p");
+                    const commentsText = document.createTextNode(feed.comments.length);
+                    comments.appendChild(commentsText);
+                    feedsDiv.appendChild(comments);
+
                     const p = document.createElement("p");
                     p.className = 'userPageFeeds';
                     const textNode1 = document.createTextNode(`Creator ID: ${feed.creatorId}, Description: ${feed.description}`);
-                    p.appendChild(textNode1);
-                    div.appendChild(p);
+                    feedsDiv.appendChild(textNode1);
+
+                    feeds.appendChild(feedsDiv);
                 }
             });
         })
@@ -594,6 +647,7 @@ function loadUserScreen(userId) {
             reject(error);
         })
         document.body.appendChild(div);
+        document.body.appendChild(feeds);
     });
 
     Promise.all([promise1, promise2, promise3, promise4])

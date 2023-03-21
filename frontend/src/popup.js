@@ -55,10 +55,11 @@ export function commentsPopup(feed, user_token) {
         .then(data=>{
             const link = popupWindow.document.createElement('a');
             link.textContent = data.name;
+            console.log(data);
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 popupWindow.close();
-                otherUserScreen();
+                otherUserScreen(data.id);
             });
             const comment = popupWindow.document.createElement('p');
             comment.appendChild(link);
@@ -98,13 +99,14 @@ export function likesPopup(feed) {
 
     Object.entries(likes).forEach((l) => {
         const value = l[1];
+        //console.log(value);
         const user_name = value.userName;
         const link = popupWindow.document.createElement('a');
         link.textContent = user_name;
         link.addEventListener('click', (event) => {
             event.preventDefault();
             popupWindow.close();
-            otherUserScreen();
+            otherUserScreen(value.userId);
         });
         const comment = popupWindow.document.createElement('p');
         comment.appendChild(link);

@@ -1,4 +1,4 @@
-
+import { loadUserScreen } from './main.js';
 
 export function removeLoginScreen() {
     const Loginform = document.getElementById("LoginForm");
@@ -18,7 +18,18 @@ export function revertLoginScreen() {
     LogoutForm.style.display = "none";
 }
 
-export function otherUserScreen() {
+export function getUserProfileButton() {
+    const viewProfileForm = document.getElementById("viewProfileForm");
+    viewProfileForm.style.display = "block";
+}
+
+export function removeUserProfileButton() {
+    const viewProfileForm = document.getElementById("viewProfileForm");
+    viewProfileForm.style.display = "block";
+}
+
+
+export function otherUserScreen(userId) {
     removeLoginScreen();
     const parent = document.getElementById("output");
     parent.style.display = 'none';
@@ -26,6 +37,7 @@ export function otherUserScreen() {
     for (let i = 0; i < Feeds.length; i++) {
         Feeds[i].style.display = "none";
     }
+    loadUserScreen(userId);
 }
 
 export function goBacktoMainScreen() {
@@ -53,6 +65,17 @@ export function goBacktoMainScreen() {
         userPageFeeds[i].style.display = "none";
     }
 
+    const goBackButton = document.getElementsByClassName("goBackBtn")[0];
+    goBackButton.style.display = "none";
+
     const button = document.getElementsByClassName("userPageWatchB")[0];
     button.style.display = "none";
+
+    const userUpdateForm = document.getElementById("UserUpdateProfile");
+    userUpdateForm.style.display = 'none';
+
+    const userFeedsDiv = document.getElementById("userProfileFeeds");
+    userFeedsDiv.style.display = 'none';
+
+    getUserProfileButton();
 }
