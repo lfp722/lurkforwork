@@ -10,6 +10,11 @@ const url = "http://localhost:" + String(BACKEND_PORT);
 
 console.log('Let\'s go!');
 
+/*
+TODO: CSS Style
+Add feed button in the main page.
+*/
+
 var user_logged_in = false;
 var user_token = null;
 var user_id = null;
@@ -120,8 +125,8 @@ RegisterForm.addEventListener("submit", function (event) {
         user_logged_in = true;
         removeLoginScreen();
     })
-    .catch(err => {
-        console.log("Error: ", err);
+    .catch(error => {
+        throw new Error(`Error: ${error}`);
     });
 })
 
@@ -143,6 +148,18 @@ viewProfileForm.addEventListener("submit", function(event) {
     viewProfileForm.style.display = 'none';
 });
 
+let addFeedForm = document.getElementById("addFeedForm");
+addFeedForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+    createFeedPopup().then((data) => {
+        const imagePromise = fileToDataUrl(data.image);
+        imagePromise.then(dataURL => {
+            addFeed(data.title, dataURL, data.startingDate, data.description);
+        })
+        //addFeed(data.title, image, data.startingDate, data.description);
+    });
+})
+
 // Feeds
 const outputElement = document.getElementById("output");
 // Infinite Scroll
@@ -151,6 +168,31 @@ outputElement.addEventListener('scroll', function() {
         loadFeeds();
     }
 })
+
+// Time Calculation
+function TimeCalc(dateString) {
+    const date = new Date(dateString);
+    const diff = Math.abs(new Date() - date);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+        const remainingMinutes = minutes % 60;
+        return `${hours} hours and ${remainingMinutes} minutes ago`;
+    } else {
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+}
+
+function TimePrettier(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
 
 // TODO: Starting date, when job was posted
 function loadFeeds() {
@@ -193,6 +235,21 @@ function loadFeeds() {
             img.alt = feed.description;
             img.classList.add("Feed-Image");
             div.appendChild(img);
+
+            //Title 
+            const title = document.createElement("div");
+            title.textContent = feed.title;
+            div.append(title);
+
+            //Time posted
+            const time = document.createElement("div");
+            time.textContent = TimeCalc(feed.createdAt);
+            div.append(time);
+
+            // Starting Time
+            const startingTime = document.createElement("div");
+            startingTime.textContent = `Starting Date: ${TimePrettier(feed.start)}`
+            div.append(startingTime);
 
             // Create and append description element
             const description = document.createElement("div");
@@ -323,8 +380,7 @@ function loadFeeds() {
             return data.name;
         })
         .catch(error => {
-            console.log(error);
-            throw error;
+            throw new Error(`Error: ${error}`);
         })
         });
         return Promise.all(promises);
@@ -335,7 +391,7 @@ function loadFeeds() {
         outputElement.style.display = "block";
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     });
 }
 
@@ -390,19 +446,6 @@ function loadCurrentUserScreen() {
     const div = document.createElement("div");
     div.classList.add(`current_user_screen`);
     document.body.appendChild(div);
-
-    const addBtn = document.createElement("button");
-    addBtn.classList.add(`btns`);
-    addBtn.className = "addFeedButton";
-    addBtn.textContent = "Add feed";
-
-    div.appendChild(addBtn);
-
-    addBtn.addEventListener("click", function() {
-        createFeedPopup().then((data) => {
-            addFeed(data.title, data.image, data.description);
-        });
-    });
 }
 
 function watch(user_email) {
@@ -425,7 +468,7 @@ function watch(user_email) {
         }
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
 }
 
@@ -449,7 +492,7 @@ function unwatch(user_email) {
         }
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
 }
 
@@ -466,6 +509,7 @@ export function loadUserScreen(userId) {
 
     const goBack = document.createElement('button');
     goBack.className = 'goBackBtn';
+    goBack.id = "goBackBtn";
     goBack.textContent = 'Go back to the main page';
     div.appendChild(goBack);
 
@@ -476,16 +520,35 @@ export function loadUserScreen(userId) {
     goBack.addEventListener("click", function() {
         goBacktoMainScreen();
         goBack.style.display = 'none';
-        button.style.display = 'none';
+        button.remove();
+        //button.style.display = 'none';
         const chileFeed = feeds.querySelectorAll('div');
         chileFeed.forEach(div => div.remove());
+        feeds.remove();
         
         const addBtn = document.getElementsByClassName("addFeedButton");
-        console.log(addBtn);
         for (let i = 0; i < addBtn.length; i++) {
             const childBtns = addBtn[i];
             childBtns.remove();
         }
+
+        for (let i = 0; i < div.length; i++) {
+            const child = div[i];
+            child.remove();
+        }
+
+        const userInfo = document.getElementsByClassName("userInfo");
+        for (let i = 0; i < userInfo.length; i++) {
+            const child = userInfo[i];
+            child.remove();
+        }
+
+        let watchingUsers = document.getElementsByClassName("Watching-Users")[0];
+        watchingUsers.classList.remove("Watching-Users");
+
+        div.remove();
+
+
         viewProfileForm.style.display = 'block';
     });
     
@@ -656,14 +719,15 @@ export function loadUserScreen(userId) {
     });
 }
 
-function addFeed(title, image, description) {
-    const start = new Date();
-    const start_toString = start.toISOString();
+function addFeed(title, image, startingDate, description) {
+    const [day, month, year] = startingDate.split('/');
+    const isoDateString = `${year}-${month}-${day}T00:00:00.000Z`;
+    const date = new Date(Date.parse(isoDateString));
 
     let data = {
         title: title,
         image: image,
-        start: start_toString,
+        start: date,
         description: description
     }
     const fetchURL = url+"/job";
@@ -680,11 +744,14 @@ function addFeed(title, image, description) {
             throw new Error(`Error: ${response.status}`)
         }
         // Remove the current shown feeds and load again.
-        while(outputElement.firstChild) {
-            outputElement.removeChild(outputElement.firstChild);
+        if (outputElement.firstChild) {
+            while(outputElement.firstChild) {
+                outputElement.removeChild(outputElement.firstChild);
+            }
         }
         feed_index = 0;
         loadFeeds();
+        goBacktoMainScreen();
     })
     .catch(error => {
         throw new Error(`Error: ${error}`)
@@ -712,7 +779,6 @@ function deleteFeed(feed) {
             throw new Error(`Error: ${response.status}`);
         }
         const feed_to_be_deleted = document.getElementsByClassName(`feed-${feed.id}`);
-        console.log(feed_to_be_deleted);
         for (let i = 0; i < feed_to_be_deleted.length; i++) {
             feed_to_be_deleted[i].remove();
         }
@@ -752,7 +818,7 @@ function updateFeed(feed, id, title, image, description) {
         feed_to_be_updated.textContent = description;
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
 }
 
@@ -771,7 +837,6 @@ function writeComment(feed, comment){
         body: JSON.stringify(data)
     })
     .then(response => {
-        console.log(response);
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
@@ -784,7 +849,7 @@ function writeComment(feed, comment){
         feed.comments.push(current_comment);
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
 }
 
@@ -824,6 +889,6 @@ function likeFeed(feed, likes) {
         likeBtn[0].textContent = feed.likes.length;
     })
     .catch(error => {
-        console.log(error);
+        throw new Error(`Error: ${error}`);
     })
 }
