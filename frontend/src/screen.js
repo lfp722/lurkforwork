@@ -4,6 +4,8 @@ export function removeLoginScreen() {
     const Loginform = document.getElementById("LoginForm");
     const RegisterForm = document.getElementById("RegisterForm");
     const LogoutForm = document.getElementById("LogoutForm");
+    const addFeedForm = document.getElementById("addFeedForm");
+    addFeedForm.style.display = 'block';
     Loginform.style.display = "none";
     RegisterForm.style.display = "none";
     LogoutForm.style.display = "block";
@@ -64,6 +66,7 @@ export function goBacktoMainScreen() {
     for (let i = 0; i < userPageFeeds.length; i++) {
         userPageFeeds[i].style.display = "none";
     }
+
 
     const goBackButton = document.getElementsByClassName("goBackBtn")[0];
     goBackButton.style.display = "none";

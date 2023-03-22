@@ -114,7 +114,19 @@ html, body {
     right: 5vw;
 }
 #LogoutForm > button {
-    background-color: #85B5D6;
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+#LogoutForm > button:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 #viewProfileForm {
@@ -122,6 +134,21 @@ html, body {
     position: absolute;
     top: 3vh;
     right: 10vw;
+}
+#viewProfileForm > button {
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+#viewProfileForm > button:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 /* Feeds */
@@ -140,19 +167,43 @@ html, body {
     overflow: auto;
 }
 
+
 #userProfileFeeds {
     display: none;
     position: absolute;
-    left: 5vw;
-    right: 5vw;
+    right: 0vw;
     bottom: 0;
     margin: auto;
-    width: 90vw;
+    width: 65vw;
     height:70vh;
     background-color: #FCFCF5;
     border: 1px solid #ccc;
     padding: 10px;
     overflow: auto;
+}
+
+#addFeedForm{
+    display: none;
+}
+
+#addFeedButton {
+    position: absolute;
+    right: 5vw;
+    bottom: 75vh;
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+#addFeedButton:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -162,6 +213,8 @@ html, body {
 
 #feed {
     height: 30%;
+    border: 1px solid black;
+    margin-bottom: 10px;
 }
 
 .feed-container {
@@ -172,6 +225,8 @@ html, body {
     margin-right: 10px;
     min-width: 100px;
     min-height: 15px;
+    max-width: 200px;
+    max-height: 30px;
 }
 
 .Feed-Comment-Button {
@@ -185,3 +240,21 @@ html, body {
     min-height: 1vh;
 }
 
+#goBackBtn{
+    position: absolute;
+    top: 3vh;
+    right: 10vw;
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+#goBackBtn:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
+}

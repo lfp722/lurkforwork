@@ -194,8 +194,15 @@ export function createFeedPopup() {
     title_label.innerHTML = "Title: ";
     
     const image = document.createElement("input");
+    image.setAttribute("type", "file");
+    image.setAttribute("accept", "image/jpeg");
+    image.setAttribute("name", "image");
     const image_label = document.createElement("label");
     image_label.innerHTML = "Image: ";
+
+    const startingDate = document.createElement("input");
+    const startingDate_label = document.createElement("label");
+    startingDate_label.innerHTML = "Starting Date: ";
     
     const description = document.createElement("input");
     const description_label = document.createElement("label");
@@ -204,8 +211,13 @@ export function createFeedPopup() {
     title.type = "text";
     title.name = "title";
     
+    /*
     image.type = "text";
     image.name = "image";
+    */
+
+    startingDate.type = "text";
+    startingDate.name = "startingDate";
     
     description.type = "text";
     description.name = "description";
@@ -215,6 +227,9 @@ export function createFeedPopup() {
     form.appendChild(document.createElement("br"));
     form.appendChild(image_label);
     form.appendChild(image);
+    form.appendChild(document.createElement("br"));
+    form.appendChild(startingDate_label);
+    form.appendChild(startingDate);
     form.appendChild(document.createElement("br"));
     form.appendChild(description_label);
     form.appendChild(description);
@@ -229,14 +244,23 @@ export function createFeedPopup() {
 
     const formPromise = new Promise((resolve) => {
         form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        const data = {
-            title: title.value,
-            image: image.value,
-            description: description.value,
-        };
-            popupWindow.close();
-            resolve(data);
+            const start = startingDate.value;
+            const DatePattern = /^\d{2}\/\d{2}\/\d{4}$/;
+            if (!DatePattern.test(start)) {
+                alert("Please enter a valid date in the format dd/mm/yyyy");
+                popupWindow.close();
+                return false;
+            }
+            event.preventDefault();
+
+            const data = {
+                title: title.value,
+                image: image.files[0],
+                startingDate: start,
+                description: description.value,
+            };
+                popupWindow.close();
+                resolve(data);
         });
     });
     return formPromise;
