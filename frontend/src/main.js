@@ -2,7 +2,7 @@ import { BACKEND_PORT } from './config.js';
 // A helper you may want to use when uploading new images to the server.
 import { fileToDataUrl } from './helpers.js';
 import { removeLoginScreen, revertLoginScreen, goBacktoMainScreen, getUserProfileButton, removeUserProfileButton } from './screen.js';
-import { loginError, commentsPopup, likesPopup, updateFeedPopup, createFeedPopup } from './popup.js';
+import { customErrorPopup, commentsPopup, likesPopup, updateFeedPopup, createFeedPopup, watchUserByEmailPopup } from './popup.js';
 import { getUserName } from './user.js';
 
 
@@ -47,9 +47,8 @@ LoginForm.addEventListener("submit", function (event) {
         if (response.ok) {
             return response.json();
         }
-        else {
-            loginError("You typed wrong id or password. Please try agian!");
-        }
+        alert(`Wrong id or password\nPlease try again`);
+        throw new Error(`Error: ${response.status}`);
     })
     .then(data => {
         user_token = data.token;
@@ -89,13 +88,41 @@ LoginForm.addEventListener("submit", function (event) {
 // Register
 let RegisterForm = document.getElementById("RegisterForm");
 RegisterForm.addEventListener("submit", function (event) {
-    event.preventDefault();
     const userId = document.getElementById("registerID").value;
     const userN = document.getElementById("registerN").value;
     const password = document.getElementById("registerPD").value;
     const confirm_password = document.getElementById("registerPC").value;
+
+    //User Id needs to be more than 6 chars long
+    if (userId.trim().length < 6) {
+        alert(`User ID needs to be more than 6 characters long!`);
+        event.preventDefault();
+        return;
+    }
+
+    if (userN.trim().length < 4) {
+        alert(`User Name needs to be more than 4 characters long!`);
+        event.preventDefault();
+        return;
+    }
+
+    // Password needs to be more than 6 chars long
+    if (password.trim().length < 6) {
+        alert(`User Name needs to be more than 4 characters long!`);
+        event.preventDefault();
+        return;
+    }
+
+    if (!/\W/.test(password.trim())) {
+        alert('Password needs to have more than 1 special character!');
+        event.preventDefault();
+        return;
+    }
+
+
     if (password != confirm_password) {
-        openPopup_Register();
+        alert('Passwords do not match!');
+        event.preventDefault();
         return;
     }
 
@@ -116,7 +143,7 @@ RegisterForm.addEventListener("submit", function (event) {
         if (response.ok) {
             return response.json();
         } else {
-            throw new Error(`Error: ${res.status}`);
+            throw new Error(`Error: ${response.status}`);
         }
     })
     .then(data => {
@@ -128,6 +155,7 @@ RegisterForm.addEventListener("submit", function (event) {
         getUserProfileButton();
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     });
 })
@@ -153,8 +181,7 @@ viewProfileForm.addEventListener("submit", function(event) {
 let watchUserByEmailFrom = document.getElementById("watchUserByEmailForm");
 watchUserByEmailFrom.addEventListener("submit", function(event) {
     event.preventDefault();
-    const email = document.getElementById("watchUserByEmail").value;
-    watch(email);
+    watchUserByEmailPopup();
 })
 
 let addFeedForm = document.getElementById("addFeedForm");
@@ -226,6 +253,7 @@ function loadFeeds() {
             resolve(data);
         })
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             reject(error);
         })
     });
@@ -358,6 +386,10 @@ function loadFeeds() {
             div.appendChild(commentBtn);
             commentBtn.addEventListener("click", function() {
                 const comment = commentInput.value;
+                if(comment.trim() === '') {
+                    alert(`Comments cannot be empty`);
+                    return;
+                }
                 writeComment(feed, comment);
                 commentInput.value = '';
             })
@@ -388,6 +420,7 @@ function loadFeeds() {
             return data.name;
         })
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             throw new Error(`Error: ${error}`);
         })
         });
@@ -399,6 +432,7 @@ function loadFeeds() {
         outputElement.style.display = "block";
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     });
 }
@@ -442,16 +476,19 @@ UpdateProfileForm.addEventListener("submit", function(event){
             .then((response) => {
                 console.log(JSON.stringify(data));
                 if (!response.ok) {
+                    customErrorPopup(`Error: ${response.status}`);
                     throw new Error(`Error: ${response.status}`);
                 }
             })
             .catch(error => {
+                customErrorPopup(`Error: ${error}`);
                 throw new Error(`Error: ${error}`);
             });
         })
 
         Promise.all([imagePromise, promise])
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             throw new Error(`Error: ${error}`);
         })
     }
@@ -466,10 +503,12 @@ UpdateProfileForm.addEventListener("submit", function(event){
         })
         .then((response) => {
             if (!response.ok) {
+                customErrorPopup(`Error: ${response.status}`);
                 throw new Error(`Error: ${response.status}`);
             }
         })
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             throw new Error(`Error: ${error}`);
         });
     }
@@ -486,7 +525,7 @@ function loadCurrentUserScreen() {
     document.body.appendChild(div);
 }
 
-function watch(user_email) {
+export function watch(user_email) {
     let data = {
         email: user_email,
         turnon: true
@@ -502,17 +541,21 @@ function watch(user_email) {
         body: JSON.stringify(data)
     })
     .then(response => {
-        console.log(response);
         if (response.ok) {
-            console.log("Watch Successful");
+            alert("Watch Successful");
         }
+        else{
+            alert(`Watch was not successful.\nThis might be because you entered wrong email\nError: ${response.status}`);
+        }
+        
     })
     .catch(error => {
+        customErrorPopup(`Watch was not successful.\nError: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
 
-function unwatch(user_email) {
+export function unwatch(user_email) {
     let data = {
         email: user_email,
         turnon: false
@@ -528,10 +571,14 @@ function unwatch(user_email) {
     })
     .then(response => {
         if (response.ok) {
-            console.log("Unwatch Successful");
+            alert("Unwatch Successful");
+        }
+        else{
+            alert(`Unwatch was not successful.\nThis might be because you entered wrong email\nError: ${response.status}`);
         }
     })
     .catch(error => {
+        customErrorPopup(`Unwatch was not successful.\nError: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
@@ -576,6 +623,7 @@ export function loadUserScreen(userId) {
                 resolve(resolved);
             })
             .catch(error => {
+                customErrorPopup(`Error: ${error}`);
                 reject(error);
             })
         });
@@ -589,6 +637,7 @@ export function loadUserScreen(userId) {
         })
         Promise.all([promise1, promise2])
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             throw new Error(`Error: ${error}`);
         })
     })
@@ -715,6 +764,7 @@ export function loadUserScreen(userId) {
             resolve(data);
         })
         .catch(error => {
+            customErrorPopup(`Error: ${error}`);
             reject(error);
         })
     });
@@ -722,7 +772,7 @@ export function loadUserScreen(userId) {
         const watcheeUserIds = data.watcheeUserIds;
         const h2 = document.createElement("h2");
         h2.className = 'WatchingUserH';
-        h2.textContent = "This user is Watching: ";
+        h2.textContent = "This user is watched by: ";
         div.appendChild(h2);
 
         watcheeUserIds.forEach(userId => {
@@ -748,6 +798,7 @@ export function loadUserScreen(userId) {
                 div.appendChild(p);
             })
             .catch(error => {
+                customErrorPopup(`Error: ${error}`);
                 throw new Error(`Error: ${error}`);
             })
         });
@@ -757,6 +808,7 @@ export function loadUserScreen(userId) {
 
     Promise.all([promise1, promise2])
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     });
 }
@@ -796,13 +848,15 @@ function addFeed(title, image, startingDate, description) {
         goBacktoMainScreen();
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`)
     })
 }
 
 function deleteFeed(feed) {
     if (feed.creatorId != user_id) {
-        throw new Error("You are not a creator!!!!");
+        customErrorPopup(`Sorry, You are not a creator!`);
+        throw new Error('User is not a creator');
     }
     let data = {
         id: feed.id
@@ -826,6 +880,7 @@ function deleteFeed(feed) {
         }
     })
     .catch(error =>{
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
@@ -860,6 +915,7 @@ function updateFeed(feed, id, title, image, description) {
         feed_to_be_updated.textContent = description;
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
@@ -888,9 +944,11 @@ function writeComment(feed, comment){
             userName: userName,
             comment: comment
         }
+        alert(`Comment was successfully written!`);
         feed.comments.push(current_comment);
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
@@ -931,6 +989,7 @@ function likeFeed(feed, likes) {
         likeBtn[0].textContent =  `❤️: ${feed.likes.length}`;
     })
     .catch(error => {
+        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`);
     })
 }
