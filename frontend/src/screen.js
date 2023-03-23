@@ -5,10 +5,12 @@ export function removeLoginScreen() {
     const RegisterForm = document.getElementById("RegisterForm");
     const LogoutForm = document.getElementById("LogoutForm");
     const addFeedForm = document.getElementById("addFeedForm");
+    const watchByEmailForm = document.getElementById('watchUserByEmailForm');
     addFeedForm.style.display = 'block';
     Loginform.style.display = "none";
     RegisterForm.style.display = "none";
     LogoutForm.style.display = "block";
+    watchByEmailForm.style.display = 'block';
 }
 
 export function revertLoginScreen() {

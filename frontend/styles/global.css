@@ -116,7 +116,7 @@ html, body {
     display: none;
     position: absolute;
     top: 3vh;
-    right: 5vw;
+    right: 0;
 }
 #LogoutForm > button {
     padding: 1rem;
@@ -136,8 +136,11 @@ html, body {
 }
 
 #watchUserByEmailForm {
+    display: none;
     position: absolute;
-    right: 5vw;
+    top: 3vh;
+    left: 35vw;
+    width: 9vw;;
 }
 
 #watchUserByEmailButton {
@@ -150,7 +153,6 @@ html, body {
     cursor: pointer;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease-in-out;
-    width: 5vw;
 }
 
 /* Feeds */
@@ -168,6 +170,7 @@ html, body {
     padding: 10px;
     overflow: auto;
 }
+
 #UserUpdateProfile {
     display: none;
 }
@@ -427,7 +430,7 @@ html, body {
     display: none;
     position: absolute;
     top: 3vh;
-    right: 10vw;
+    right: 20vw;
     width: 10vw;
 }
 #viewProfileForm > button {
@@ -475,8 +478,9 @@ html, body {
 
 #addFeedButton {
     position: absolute;
-    right: 40vw;
+    left: 45vw;
     top: 3vh;
+    width: 9vw;
     padding: 1rem;
     background-color: #4caf50;
     color: white;
@@ -495,7 +499,7 @@ html, body {
 
 .userPageWatchB {
     position: absolute;
-    right: 32vw;
+    left: 55vw;
     top: 3vh;
     padding: 1rem;
     background-color: #4caf50;
