@@ -210,11 +210,6 @@ export function createFeedPopup() {
     
     title.type = "text";
     title.name = "title";
-    
-    /*
-    image.type = "text";
-    image.name = "image";
-    */
 
     startingDate.type = "text";
     startingDate.name = "startingDate";

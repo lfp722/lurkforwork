@@ -54,7 +54,7 @@ html, body {
     padding: 10px 20px;
     border-radius: 5px;
     border: none;
-    background-color: #007bff;
+    background-color: #4caf50;
     color: #fff;
     font-size: 16px;
     font-weight: bold;
@@ -62,7 +62,8 @@ html, body {
     transition: all 0.3s ease-in-out;
 }
 #LoginForm button:hover {
-    background-color: #005299;
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 
@@ -98,12 +99,16 @@ html, body {
     padding: 10px 20px;
     border-radius: 5px;
     border: none;
-    background-color: #007bff;
+    background-color: #4caf50;
     color: #fff;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
+}
+#RegisterForm button:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 /* Logout */
@@ -123,17 +128,307 @@ html, body {
     cursor: pointer;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease-in-out;
+    width: 5vw;
 }
 #LogoutForm > button:hover {
     background-color: #3c863d;
     box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
+#watchUserByEmailForm {
+    position: absolute;
+    right: 5vw;
+}
+
+#watchUserByEmailButton {
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+    width: 5vw;
+}
+
+/* Feeds */
+#output {
+    display: none;
+    position: absolute;
+    left: 5vw;
+    right: 5vw;
+    bottom: 0;
+    margin: auto;
+    width: 90vw;
+    height:80vh;
+    background-color: #FCFCF5;
+    border: 1px solid #ccc;
+    padding: 10px;
+    overflow: auto;
+}
+#UserUpdateProfile {
+    display: none;
+}
+
+#feed {
+    height: 45%;
+    overflow-y: auto;
+    border: 1px solid black;
+    margin-bottom: 10px;
+    overflow: hidden;
+    align-items: center;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+}
+
+#feed button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+#feed button:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+#feed label {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+#feed input[type="text"] {
+    display: inline-block;
+    font-size: 16px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    vertical-align: middle;
+}
+
+#feed p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #333;
+    margin: 0;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#feed img {
+    margin-right: 10px;
+    min-width: 23%;
+    max-width: 23%;
+    min-height: 23%;
+    max-height: 23%;
+    object-fit: contain;
+}
+
+.feed-container {
+    align-items: center;
+}
+
+#UserUpdateProfile {
+    width: 20%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+#UserUpdateProfile h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+#UserUpdateProfile p {
+    font-size: 16px;
+    margin: 0;
+    margin-bottom: 30px;
+}
+
+#UserUpdateProfile label {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#UserUpdateProfile input[type="text"],
+#UserUpdateProfile input[type="file"] {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    background-color: #f2f2f2;
+    font-size: 16px;
+    color: #333;
+}
+
+#UserUpdateProfile input[type="file"] {
+    margin-bottom: 30px;
+}
+
+#UserUpdateProfile button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+#UserUpdateProfile button:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+#userProfileFeeds {
+    display: none;
+    position: absolute;
+    right: 0vw;
+    bottom: 0;
+    margin: auto;
+    width: 65vw;
+    height:80vh;
+    background-color: #FCFCF5;
+    border: 1px solid #ccc;
+    padding: 10px;
+    overflow: auto;
+}
+
+#userCreatedFeed {
+    align-items: center;
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    width: 100%;
+    min-width: 300px;
+}
+
+#userCreatedFeed h3 {
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+#userCreatedFeed p {
+    font-size: 16px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+#userCreatedFeed img {
+    margin-right: 10px;
+    min-width: 15%;
+    max-width: 15%;
+    min-height: 15%;
+    max-height: 15%;
+    object-fit: contain;
+}
+
+
+#UserUpdateProfile, .head {
+    margin-left: 5vw;
+}
+
+.Watching-Users {
+    display: flex;
+    flex-direction: column;
+    background-color: #f2f2f2;
+    margin-top: 2vh;
+    margin-left: 5vw;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 20%;
+}
+
+.Watching-Users h2 {
+    font-size: 24px;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.Watching-Users p {
+    font-size: 16px;
+    margin: 0;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+
+
+
+
+#addFeedForm{
+    display: none;
+}
+
+
+
+
+
+.userInfo {
+    padding-top: 10px;
+    margin-left: 5vw;
+    width: 20vw;
+}
+
+.userInfo p {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #333;
+    margin: 0;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+
+
+
+/* Main Buttons */
+
+
+
 #viewProfileForm {
     display: none;
     position: absolute;
     top: 3vh;
     right: 10vw;
+    width: 10vw;
 }
 #viewProfileForm > button {
     padding: 1rem;
@@ -151,45 +446,37 @@ html, body {
     box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
-/* Feeds */
-#output {
-    display: none;
+
+
+#goBackBtn{
     position: absolute;
-    left: 5vw;
-    right: 5vw;
-    bottom: 0;
-    margin: auto;
-    width: 90vw;
-    height:70vh;
-    background-color: #FCFCF5;
-    border: 1px solid #ccc;
-    padding: 10px;
-    overflow: auto;
+    top: 3vh;
+    right: 10vw;
+    width: 15vw;
+    padding: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease-in-out;
+}
+#goBackBtn:hover {
+    background-color: #3c863d;
+    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
 
-#userProfileFeeds {
-    display: none;
-    position: absolute;
-    right: 0vw;
-    bottom: 0;
-    margin: auto;
-    width: 65vw;
-    height:70vh;
-    background-color: #FCFCF5;
-    border: 1px solid #ccc;
-    padding: 10px;
-    overflow: auto;
-}
 
-#addFeedForm{
-    display: none;
-}
+
+
 
 #addFeedButton {
     position: absolute;
-    right: 5vw;
-    bottom: 75vh;
+    right: 40vw;
+    top: 3vh;
     padding: 1rem;
     background-color: #4caf50;
     color: white;
@@ -206,44 +493,10 @@ html, body {
     box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
 }
 
-
-#UserUpdateProfile {
-    display: none;
-}
-
-#feed {
-    height: 30%;
-    border: 1px solid black;
-    margin-bottom: 10px;
-}
-
-.feed-container {
-    align-items: center;
-}
-
-.Feed-Image {
-    margin-right: 10px;
-    min-width: 100px;
-    min-height: 15px;
-    max-width: 200px;
-    max-height: 30px;
-}
-
-.Feed-Comment-Button {
-    background-color: #85B5D6;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    min-width: 5vw;
-    min-height: 1vh;
-}
-
-#goBackBtn{
+.userPageWatchB {
     position: absolute;
+    right: 32vw;
     top: 3vh;
-    right: 10vw;
     padding: 1rem;
     background-color: #4caf50;
     color: white;
@@ -254,7 +507,5 @@ html, body {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease-in-out;
 }
-#goBackBtn:hover {
-    background-color: #3c863d;
-    box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.3);
-}
+
+

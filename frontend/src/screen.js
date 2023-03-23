@@ -39,6 +39,9 @@ export function otherUserScreen(userId) {
     for (let i = 0; i < Feeds.length; i++) {
         Feeds[i].style.display = "none";
     }
+    const viewProfileForm = document.getElementById('viewProfileForm');
+    viewProfileForm.style.display = 'none';
+
     loadUserScreen(userId);
 }
 
@@ -62,6 +65,11 @@ export function goBacktoMainScreen() {
         watching_paragraphs[i].style.display = "none";
     }
 
+    const watching_header = document.getElementsByClassName("WatchingUserH");
+    for (let i = 0; i < watching_header.length; i++) {
+        watching_header[i].style.display = "none";
+    }
+
     const userPageFeeds = document.getElementsByClassName("userPageFeeds");
     for (let i = 0; i < userPageFeeds.length; i++) {
         userPageFeeds[i].style.display = "none";
@@ -79,6 +87,11 @@ export function goBacktoMainScreen() {
 
     const userFeedsDiv = document.getElementById("userProfileFeeds");
     userFeedsDiv.style.display = 'none';
+
+    const currentDiv = document.getElementsByClassName("current_user_screen");
+    for (let i = 0; i < currentDiv.length; i++) {
+        currentDiv[i].remove();
+    }
 
     getUserProfileButton();
 }
