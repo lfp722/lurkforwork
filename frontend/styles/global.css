@@ -508,4 +508,14 @@ html, body {
     transition: all 0.3s ease-in-out;
 }
 
+.popup a {
+    color: blue;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.popup a:hover {
+    color: red;
+    text-decoration: none;
+}
 

@@ -1,8 +1,9 @@
 import { BACKEND_PORT } from './config.js';
 import { otherUserScreen } from './screen.js';
+import { watch, unwatch } from './main.js';
 const url = "http://localhost:" + String(BACKEND_PORT);
 
-export function loginError(error) {
+export function customErrorPopup(error) {
     var popupWidth = 400;
     var popupHeight = 200;
     var screenLeft = (window.screen.width - popupWidth) / 2;
@@ -54,6 +55,7 @@ export function commentsPopup(feed, user_token) {
         })
         .then(data=>{
             const link = popupWindow.document.createElement('a');
+            link.style.color = 'blue';
             link.textContent = data.name;
             console.log(data);
             link.addEventListener('click', (event) => {
@@ -102,6 +104,7 @@ export function likesPopup(feed) {
         //console.log(value);
         const user_name = value.userName;
         const link = popupWindow.document.createElement('a');
+        link.style.color = 'blue';
         link.textContent = user_name;
         link.addEventListener('click', (event) => {
             event.preventDefault();
@@ -180,12 +183,58 @@ export function updateFeedPopup(feed) {
     return formPromise;
 }
 
-export function createFeedPopup() {
+export function watchUserByEmailPopup() {
     var popupWidth = 400;
     var popupHeight = 200;
     var screenLeft = (window.screen.width - popupWidth) / 2;
     var screenTop = (window.screen.height - popupWidth) / 2;
     var popupWindow = window.open("", "Update Feed", "width="+popupWidth + ",height="+popupHeight + ",left="+screenLeft+",top="+screenTop);
+
+    const form = document.createElement("form");
+
+    const email = document.createElement("input");
+    const email_label = document.createElement("label");
+    email_label.innerHTML = "User's Email: ";
+
+    const watchDropdown = document.createElement("select");
+    const watchOption = document.createElement("option");
+    const unwatchOption = document.createElement("option");
+    watchOption.value = "Watch";
+    watchOption.text = "Watch";
+    unwatchOption.value = "Unwatch";
+    unwatchOption.text = "Unwatch";
+    watchDropdown.add(watchOption);
+    watchDropdown.add(unwatchOption);
+
+    form.appendChild(email_label);
+    form.appendChild(email);
+    form.appendChild(watchDropdown);
+
+    const submitBtn = document.createElement("input");
+    submitBtn.type = "submit";
+    submitBtn.value = "Done!";
+
+    form.appendChild(submitBtn);
+
+    popupWindow.document.body.appendChild(form);
+
+    form.addEventListener("submit", function(event) {
+        if(watchDropdown.value === 'Watch') {
+            watch(email.value);
+        }
+        else {
+            unwatch(email.value);
+        }
+        popupWindow.close();
+    })
+}
+
+export function createFeedPopup() {
+    var popupWidth = 400;
+    var popupHeight = 200;
+    var screenLeft = (window.screen.width - popupWidth) / 2;
+    var screenTop = (window.screen.height - popupWidth) / 2;
+    var popupWindow = window.open("", "Create Feed", "width="+popupWidth + ",height="+popupHeight + ",left="+screenLeft+",top="+screenTop);
 
     const form = document.createElement("form");
 
