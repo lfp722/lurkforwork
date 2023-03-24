@@ -45,6 +45,7 @@
 
 10. Update / Delete job feed
     If the user is the owner of the feed, inside the feedslist in the main page, the feeds will have two additional buttons to either update or delte the job feeds.
+    This can also be done via button inside the feedslist in the user profile page which shows the feeds created by the user.
 
 11. Leaving comment
     User can simply type what they wanna comment inside the feed byu typing what they wanna comment and click button next to it. As I didn't waana see any blank comments, I validated the comments by not accepiting the comment with only white spaces.
