@@ -137,7 +137,6 @@ export function updateFeedPopup(feed) {
     closeButton.addEventListener("click", function() {
         popupWindow.close();
     });
-    popupWindow.document.body.appendChild(closeButton);
 
     const form = document.createElement("form");
 
@@ -145,21 +144,28 @@ export function updateFeedPopup(feed) {
     const image = document.createElement("input");
     const description = document.createElement("input");
 
+    image.setAttribute("type", "file");
+    image.setAttribute("accept", "image/jpeg");
+    image.setAttribute("name", "image");
+
+    const image_label = document.createElement("label");
+    image_label.innerHTML = "Image: ";
+
     title.type = "text";
     title.name = "Title: ";
     title.value = feed.title;
-
-    image.type = "text";
-    image.name = "Image: ";
-    image.value = feed.image;
 
     description.type = "text";
     description.name = "Description: ";
     description.value = feed.description;
 
     form.appendChild(title);
+    form.appendChild(document.createElement("br"));
+    form.appendChild(image_label);
     form.appendChild(image);
+    form.appendChild(document.createElement("br"));
     form.appendChild(description);
+    form.appendChild(document.createElement("br"));
 
     const submitBtn = document.createElement("input");
     submitBtn.type = "submit";
@@ -167,17 +173,18 @@ export function updateFeedPopup(feed) {
 
     form.appendChild(submitBtn);
     popupWindow.document.body.appendChild(form);
+    popupWindow.document.body.appendChild(closeButton);
 
     const formPromise = new Promise((resolve) => {
         form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        const data = {
-            title: title.value,
-            image: image.value,
-            description: description.value,
-        };
-            popupWindow.close();
-            resolve(data);
+            event.preventDefault();
+            const data = {
+                title: title.value,
+                image: image.files[0],
+                description: description.value,
+            };
+                popupWindow.close();
+                resolve(data);
         });
     });
     return formPromise;

@@ -328,7 +328,13 @@ function loadFeeds() {
 
                 updateBtn.addEventListener("click", function() {
                     updateFeedPopup(feed).then((data => {
-                        updateFeed(feed, feed.id, data.title, data.image, data.description);
+                        const imagePromise = fileToDataUrl(data.image);
+                        imagePromise.then(dataURL => {
+                            updateFeed(feed, feed.id, data.title, dataURL, data.description);
+                            title.textContent = data.title;
+                            img.src = dataURL;
+                            description.textContent = `Description: ${data.description}`;
+                        })
                     }));
                 });
 
@@ -752,6 +758,32 @@ export function loadUserScreen(userId) {
                 const numLikes = document.createElement("p");
                 numLikes.textContent = `❤️: ${f.likes.length}`;
                 userCreatedFeed.appendChild(numLikes);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = `Delete`;
+                userCreatedFeed.appendChild(deleteBtn);
+
+                deleteBtn.addEventListener('click', function() {
+                    feeds.removeChild(userCreatedFeed);
+                    deleteFeed(f);
+                })
+
+                const updateBtn = document.createElement('button');
+                updateBtn.textContent = `Update`;
+                userCreatedFeed.appendChild(updateBtn);
+
+                updateBtn.addEventListener('click', function() {
+                    updateFeedPopup(f).then((data => {
+                        const imagePromise = fileToDataUrl(data.image);
+                        imagePromise.then(dataURL => {
+                            updateFeed(f, f.id, data.title, dataURL, data.description);
+                            title.textContent = data.title;
+                            img.src = dataURL;
+                            description.textContent = `Description: ${data.description}`;
+                        })
+                    }));
+                })
+
 
                 const numComments = document.createElement("p");
                 numComments.textContent = `Comments: ${f.comments.length}`;
