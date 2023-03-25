@@ -17,3 +17,6 @@
 
 5. User Live Update
    When the user add or remove the feed, it will be added or removed from the feeds list shown to the user without a paga reload/refresh.
+
+6. Logout
+   User can logout by simply clicking the logout button.
