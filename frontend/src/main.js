@@ -880,7 +880,6 @@ function addFeed(title, image, startingDate, description) {
         goBacktoMainScreen();
     })
     .catch(error => {
-        customErrorPopup(`Error: ${error}`);
         throw new Error(`Error: ${error}`)
     })
 }
