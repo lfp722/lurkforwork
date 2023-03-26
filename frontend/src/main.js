@@ -75,7 +75,6 @@ LoginForm.addEventListener("submit", function (event) {
     })
     .then(data => {
         userName = data.name;
-        // Now that all data has been fetched, remove the login screen and load the feeds
         removeLoginScreen();
         loadFeeds();
         getUserProfileButton();
@@ -88,6 +87,7 @@ LoginForm.addEventListener("submit", function (event) {
 // Register
 let RegisterForm = document.getElementById("RegisterForm");
 RegisterForm.addEventListener("submit", function (event) {
+    event.preventDefault();
     const userId = document.getElementById("registerID").value;
     const userN = document.getElementById("registerN").value;
     const password = document.getElementById("registerPD").value;
@@ -146,16 +146,16 @@ RegisterForm.addEventListener("submit", function (event) {
             throw new Error(`Error: ${response.status}`);
         }
     })
-    .then(data => {
-        user_token = data.token;
-        user_id = data.userId;
+    .then(data1 => {
+        user_token = data1.token;
+        user_id = data1.userId;
         user_logged_in = true;
         removeLoginScreen();
         loadFeeds();
         getUserProfileButton();
     })
     .catch(error => {
-        customErrorPopup(`Error: ${error}`);
+        customErrorPopup(`Error happened.\nThis might be because you are using existing credentials`);
         throw new Error(`Error: ${error}`);
     });
 })
